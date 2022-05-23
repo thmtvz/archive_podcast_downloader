@@ -1,0 +1,13 @@
+#!/usr/bin/zsh
+
+echo "Reading $1"
+contents=$(<$1) 
+
+echo -e "#!/usr/bin/python\n" > $2
+echo -E $contents >> $2
+
+echo "Compiled $1 to $2"
+
+echo "Chmoding $2"
+chmod +x $2
+echo "Done"
