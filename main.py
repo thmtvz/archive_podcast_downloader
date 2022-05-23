@@ -1,25 +1,37 @@
 import sys
 import re
 import xml.etree.ElementTree as et
-import argparse
-
-parser = argparse.ArgumentParser("Download all files from a podcast on archive.org")
-
 
 def mainreal(args):
     pass
 
 
 def main(args):
+    xml_dom_rootnode = None
+
     try:
         isfile, file_or_link = processargs(args)
-    except Exception as Exc:
-        help(True, Exc)
+    except Exception as err:
+        help(True, err)
+        return
 
+    if isfile:
+        try:
+            xml_dom_rootnode = openxmlfile(file_or_link)
+        except Exception as err:
+            help(True, err)
+            return
+    return
+                
+        
 def openxmlfile(filename):
     xmltree = None
-    with open(filename) as doc:
-        xmltree = et.parse(doc)
+    with open(filename, "r") as doc:
+        try:
+            xmltree = et.parse(doc)
+        except Exception as e:
+            raise e
+        
     return xmltree.getroot()
 
 def help(err, errmsg):
@@ -28,7 +40,7 @@ def help(err, errmsg):
     print("Help")
 
 def parsearg():
-    return 0
+    return
 
 def processargs(args):
     if len(args) < 2:
@@ -39,9 +51,9 @@ def processargs(args):
 
     return (isfile, file_or_link)
 
-class Audio:
+class PodcastItem:
     def init(self):
-        return 0
+        return
 
 if __name__ == "__main__":
     main(sys.argv)
