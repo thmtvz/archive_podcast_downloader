@@ -11,12 +11,16 @@ FILE_SUFFIX = ".mp3"
 GET = "GET"
 
 def main(args):
+    download_location = "."
+    
     if len(args) < 2:
         help("Not enough arguments")
         return
     if "--help" in args or "-h" in args:
         help()
         return
+    if "--location" in args or "-l" in args:
+        download_location = args
     try:
         rootnode = get_xml_root_node(args[-1])
     except Exception as e:
