@@ -4,6 +4,12 @@ import xml.etree.ElementTree as et
 import http.client
 import urllib.parse
 
+READ = "r"
+WRITE = "w"
+BINARY_MODE = "b"
+FILE_SUFFIX = ".mp3"
+GET = "GET"
+
 def main(args):
     if len(args) < 2:
         help("Not enough arguments")
@@ -19,8 +25,25 @@ def main(args):
     
     
     il = make_items_list(rootnode)
-
+    nd = []
     #todo finish this
+    while len(il) != 0 and len(nd) == 0:
+        #todo make this using il as a queue
+        print("Starting downloads for %i items" % (len(il)))
+        for item in il:
+            try:
+                fname = item.title + FILE_SUFFIX
+                print("Downloading %s as \"%s\"..." % (item.title, fname))
+                f = open(fname, WRITE + BINARY_MODE)
+                data = makerequest(item.content)
+                f.write(data)
+                print("Done")
+                f.close()
+            except Exception as e:
+                #todo make the retry queue in case of errors
+                help(e)
+                return
+        print("Done all")
     return
 
 def get_xml_root_node(name):
@@ -58,8 +81,8 @@ def make_items_list(rootnode):
 def makerequest(url):
     u = urllib.parse.urlparse(url)
     c = http.client.HTTPSConnection(u.hostname)
-    link = u.path + u.params + ("?" + u.query)
-    c.request("GET", link)
+    
+    c.request(GET, u.path + u.params + ("?" + u.query))
     res = c.getresponse()
     if res.status == 302:
         return makerequest(res.headers.get("Location"))
@@ -72,4 +95,7 @@ class PodcastItem:
         self.content = content
         
 if __name__ == "__main__":
-    main(sys.argv)
+    try:
+        main(sys.argv)
+    except BaseException:
+        print("\nQuit")
