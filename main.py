@@ -34,8 +34,9 @@ def main(args):
             try:
                 fname = item.title + FILE_SUFFIX
                 print("Downloading %s as \"%s\"..." % (item.title, fname))
-                f = open(fname, WRITE + BINARY_MODE)
                 data = makerequest(item.content)
+                print("Writing to file")
+                f = open(fname, WRITE + BINARY_MODE)
                 f.write(data)
                 print("Done")
                 f.close()
