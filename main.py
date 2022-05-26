@@ -10,23 +10,14 @@ BINARY_MODE = "b"
 FILE_SUFFIX = ".mp3"
 GET = "GET"
 
+
 def main(args):
-    download_location = "."
-    
-    if len(args) < 2:
-        help("Not enough arguments")
-        return
-    if "--help" in args or "-h" in args:
-        help()
-        return
-    if "--location" in args or "-l" in args:
-        download_location = args
+    name, dl = parsearg(args)
     try:
-        rootnode = get_xml_root_node(args[-1])
+        rootnode = get_xml_root_node(name)
     except Exception as e:
         help(e)
         return
-    
     
     il = make_items_list(rootnode)
     nd = []
@@ -82,6 +73,18 @@ def make_items_list(rootnode):
             itemslist.append(PodcastItem(t, c))
             
     return itemslist
+
+def parsearg(args):
+    file_or_link_name = args[-1]
+    download_location = "."
+    if len(args) < 2:
+        raise Exception("Not enough arguments")
+    if "--help" in args or "-h" in args:
+        raise Exception("")
+    if "--location" in args or "-l" in args:
+        download_location = args
+
+    return (file_or_link_name, download_location)
 
 def makerequest(url):
     u = urllib.parse.urlparse(url)
