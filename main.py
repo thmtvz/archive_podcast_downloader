@@ -1,8 +1,9 @@
 import sys
 import re
-import xml.etree.ElementTree as et
+import time
 import http.client
 import urllib.parse
+import xml.etree.ElementTree as et
 
 READ = "r"
 WRITE = "w"
@@ -12,8 +13,8 @@ GET = "GET"
 
 
 def main(args):
-    name, dl = parsearg(args)
     try:
+        name, dl = parsearg(args)
         rootnode = get_xml_root_node(name)
     except Exception as e:
         help(e)
@@ -23,17 +24,20 @@ def main(args):
     nd = []
     #todo finish this
     while len(il) != 0 and len(nd) == 0:
+        #todo make this finite
         #todo make this using il as a queue
-        print("Starting downloads for %i items" % (len(il)))
+        print("Starting downloads for %i items:" % (len(il)))
         for item in il:
             try:
-                fname = item.title + FILE_SUFFIX
-                print("Downloading %s as \"%s\"..." % (item.title, fname))
+                fname = (item.title + FILE_SUFFIX).replace(" ", "_")
+                print("\tDownloading %s as \"%s\"..." % (item.title, fname))
+                t1 = time.time()
                 data = makerequest(item.content)
-                print("Writing to file")
+                print("\tWriting to file")
                 f = open(fname, WRITE + BINARY_MODE)
                 f.write(data)
-                print("Done")
+                t2 = time.time()
+                print("\tDone in %i seconds" % (t2 - t1))
                 f.close()
             except Exception as e:
                 #todo make the retry queue in case of errors
@@ -51,16 +55,13 @@ def get_xml_root_node(name):
         return et.parse(f).getroot()
 
 def help(err=""):
-    print("Usage: opd [OPTIONS] URL_OR_FILENAME")
     if err != "":
-        print("\nError:", err)
+        print("Error:", err, "\n")
+    print("Usage: opd [OPTIONS] URL_OR_FILENAME")
 
 def make_items_list(rootnode):
     itemslist = []
-    channel = None
-    for c in rootnode:
-        channel = c
-    #welp...
+    channel = rootnode[0]
     for child in channel:
         if child.tag == "item":
             t = ""
