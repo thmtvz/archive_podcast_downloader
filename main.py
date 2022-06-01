@@ -33,11 +33,13 @@ def main(args):
             download_file(item)
         except Exception as e:
             #todo add log for both stdout and file as an option
-            nd.append((item[0], item[1] += 1))
+            nd.append((item[0], item[1] + 1))
+            help(e)
         print("Done all in %d" % time.time() - ut)
     return
 
-def dowload_file(item):
+def download_file(item):
+    item = item[0]
     fname = (item.title + FILE_SUFFIX).replace(" ", "_")
     print("\tDownloading %s as \"%s\"..." % (item.title, fname))
     t1 = time.time()
