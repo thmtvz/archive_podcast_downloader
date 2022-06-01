@@ -23,27 +23,30 @@ def main(args):
     il = make_items_list(rootnode)
     nd = []
     #todo finish this
+    print("Starting downloads for %i items:" % (len(il)))
+    ut = time.time()
     while len(il) != 0 and len(nd) == 0:
-        #todo make this finite
-        #todo make this using il as a queue
-        print("Starting downloads for %i items:" % (len(il)))
-        for item in il:
-            try:
-                fname = (item.title + FILE_SUFFIX).replace(" ", "_")
-                print("\tDownloading %s as \"%s\"..." % (item.title, fname))
-                t1 = time.time()
-                data = makerequest(item.content)
-                print("\tWriting to file")
-                f = open(fname, WRITE + BINARY_MODE)
-                f.write(data)
-                t2 = time.time()
-                print("\tDone in %i seconds" % (t2 - t1))
-                f.close()
-            except Exception as e:
-                #todo make the retry queue in case of errors
-                help(e)
-                return
-        print("Done all")
+        item = il.pop()
+        if item[1] > 3:
+            continue
+        try:
+            download_file(item)
+        except Exception as e:
+            #todo add log for both stdout and file as an option
+            nd.append((item[0], item[1] += 1))
+        print("Done all in %d" % time.time() - ut)
+    return
+
+def dowload_file(item):
+    fname = (item.title + FILE_SUFFIX).replace(" ", "_")
+    print("\tDownloading %s as \"%s\"..." % (item.title, fname))
+    t1 = time.time()
+    data = makerequest(item.content)
+    with open(fname, WRITE + BINARY_MODE) as f:
+        print("\tWriting to file")
+        f.write(data)
+    t2 = time.time()
+    print("\tDone in %d seconds" % (t2 - t1))
     return
 
 def get_xml_root_node(name):
@@ -71,7 +74,7 @@ def make_items_list(rootnode):
                     t = i.text
                 if i.tag == "enclosure":
                     c = i.attrib["url"]
-            itemslist.append(PodcastItem(t, c))
+            itemslist.append((PodcastItem(t, c), 0))
             
     return itemslist
 
